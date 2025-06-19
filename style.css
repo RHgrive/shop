@@ -40,21 +40,22 @@
 }
 
 [data-theme="dark"] {
-  --bg-primary: #111827;
-  --bg-secondary: #1f2937;
-  --bg-tertiary: #374151;
-  
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #1a1a1a;
+
   --border-light: #374151;
   --border-medium: #4b5563;
   --border-strong: #6b7280;
-  
-  --text-primary: #f9fafb;
+
+  --text-primary: #fafafa;
   --text-secondary: #e5e7eb;
   --text-tertiary: #d1d5db;
-  
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.18);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+  --accent: #64b5f6;
 }
 
 * {
@@ -81,6 +82,10 @@ html, body {
 body {
   position: relative;
   transition: background-color var(--transition-normal);
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 .backdrop-blur {
@@ -246,6 +251,47 @@ main {
 .nav-menu {
   display: flex;
   gap: 2.5rem;
+}
+
+.nav-menu input {
+  width: 8rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.nav-menu button {
+  padding: 0.25rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: var(--accent-primary);
+  color: white;
+  cursor: pointer;
+}
+
+.nav-menu button:hover {
+  background-color: var(--accent-secondary);
+}
+
+.tsum-header {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+#taskList {
+  list-style: none;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#log {
+  padding: 1rem;
+  min-height: 4rem;
 }
 
 .nav-link {
@@ -1551,6 +1597,29 @@ input:checked + .slider:before {
   opacity: 1;
 }
 
+.order-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 90vh;
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.5);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  gap: 1rem;
+}
+
+.task-complete {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}
+
 .success-icon {
   width: 4rem;
   height: 4rem;
@@ -2560,4 +2629,13 @@ input:checked + .slider:before {
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(219,39,119,0.4); }
   100% { box-shadow: 0 0 0 1rem rgba(219,39,119,0); }
+}
+
+@keyframes blink {
+  0%,50% { opacity: 1; }
+  50%,100% { opacity: 0; }
+}
+.blink {
+  color: red;
+  animation: blink 1s infinite;
 }

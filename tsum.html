@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, user-scalable=no">
+  <meta name="color-scheme" content="light dark">
+  <title>TsumSync 代行</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="tsum-header">
+      <input id="loginCode" class="form-input" placeholder="ログインコード">
+      <button id="loginBtn">送信</button>
+    </div>
+    <ul id="taskList"></ul>
+    <div id="log" aria-live="polite"></div>
+  </div>
+  <script>
+    (function(){
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const storedTheme = localStorage.getItem('tsumTsumDarkMode');
+      const isDarkMode = storedTheme === null ? prefersDark : storedTheme === 'true';
+      document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+      if(isDarkMode){document.body.classList.add('dark-mode');}
+    })();
+  </script>
+  <script src="tsum.js" defer></script>
+</body>
+</html>

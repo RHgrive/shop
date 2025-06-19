@@ -1308,6 +1308,19 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
     const confirmPurchaseButton = document.getElementById("confirmPurchaseButton");
     const tabs = document.querySelectorAll(".tab");
     const tabContents = document.querySelectorAll(".tab-content");
+    const jumpBtn = document.getElementById("jumpBtn");
+    const jumpId = document.getElementById("jumpId");
+
+    if (jumpBtn) {
+      jumpBtn.onclick = () => {
+        const v = jumpId.value.trim();
+        if (/^[a-zA-Z0-9]{20,40}$/.test(v)) {
+          location.href = "/tsum/" + v;
+        } else {
+          alert("注文IDが不正です");
+        }
+      };
+    }
 
     tabs.forEach((tab) => {
       tab.addEventListener("click", function () {
@@ -1660,6 +1673,23 @@ function buildLastData(cart) {
       });
     }
 
+    function handlePaymentSuccess(response) {
+      const order_id = response.order_id
+      if (!order_id) return
+      localStorage.setItem("tsumshop_order_id", order_id)
+      const modal = document.createElement("div")
+      modal.className = "order-modal"
+      modal.innerHTML = `
+        <div class="order-id">${order_id}</div>
+        <button class="order-copy">コピー</button>
+        <div class="blink">スクリーンショットを保存してください</div>
+        <button class="order-open">代行画面を開く</button>
+      `
+      document.body.appendChild(modal)
+      modal.querySelector(".order-copy").onclick = () => navigator.clipboard.writeText(order_id)
+      modal.querySelector(".order-open").onclick = () => { location.href = "/tsum/" + order_id }
+    }
+
     confirmPurchaseButton.addEventListener("click", function () {
       const pay = paypayId.value.trim();
       const line = lineToken.value.trim();
@@ -1723,6 +1753,7 @@ function buildLastData(cart) {
         return response.json();
       })
       .then(data => {
+        handlePaymentSuccess(data)
         checkoutOverlay.classList.remove("open");
         checkoutOverlay.setAttribute("aria-hidden", "true");
         successOverlay.classList.add("open");

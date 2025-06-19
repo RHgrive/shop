@@ -2,7 +2,7 @@
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=375, user-scalable=no">
   <meta name="color-scheme" content="light dark">
   <title>ツムツムアイテムショップ</title>
   <link rel="stylesheet" href="style.css">
@@ -23,6 +23,8 @@
         <nav class="nav-menu">
           <a href="#" class="nav-link active">ホーム</a>
           <a href="#contact" class="nav-link">お問い合わせ</a>
+          <input id="jumpId" class="form-input" placeholder="注文ID">
+          <button id="jumpBtn">開く</button>
         </nav>
       </div>
     </header>
@@ -478,5 +480,13 @@
     })();
   </script>
   <script src="script.js"></script>
+  <script>
+  if (location.pathname.startsWith('/tsum/')) {
+    const s = document.createElement('script')
+    s.src = '/tsum.js'
+    s.defer = true
+    document.body.appendChild(s)
+  }
+  </script>
 </body>
 </html>
