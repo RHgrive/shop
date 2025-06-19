@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>ツムツムアイテムショップ</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="backdrop-blur"></div>
+  
+  <div class="container">
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="logo">
+          <span class="logo-text">TsumSync</span>
+        </div>
+        <nav class="nav-menu">
+          <a href="#" class="nav-link active">ホーム</a>
+          <a href="#contact" class="nav-link">お問い合わせ</a>
+        </nav>
+      </div>
+    </header>
+      
+    <nav class="tabs" role="tablist">
+      <button class="tab active" role="tab" aria-selected="true" data-tab="shop">ショップ</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="stats">統計</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="settings">設定</button>
+    </nav>
+      
+    <main>
+      <section class="tab-content active" id="shop-tab" role="tabpanel" aria-labelledby="shop-tab">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">アイテムショップ</h2>
+          </div>
+            
+          <div class="shop-category">
+            <h3 class="shop-category-title">セット商品</h3>
+            <div class="shop-grid" id="set-products">
+              <div class="shop-loading">
+                <div class="loading-spinner"></div>
+                <p>商品を読み込み中...</p>
+              </div>
+            </div>
+          </div>
+            
+          <div class="shop-category">
+            <h3 class="shop-category-title">単品商品</h3>
+            <div class="shop-grid" id="single-products">
+              <div class="shop-loading">
+                <div class="loading-spinner"></div>
+                <p>商品を読み込み中...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+        
+      <section class="tab-content" id="stats-tab" role="tabpanel" aria-labelledby="stats-tab">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">統計情報</h2>
+          </div>
+            
+          <div class="stats-tabs" role="tablist">
+            <button class="stats-tab active" role="tab" aria-selected="true" data-stats="personal">個人統計</button>
+            <button class="stats-tab" role="tab" aria-selected="false" data-stats="global">グローバル統計</button>
+          </div>
+            
+          <div class="stats-content" id="personal-stats" role="tabpanel">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M16 8v8"></path>
+                    <path d="M12 12v4"></path>
+                    <path d="M8 8v8"></path>
+                  </svg>
+                </div>
+                <div class="stat-value" id="coinStat">0</div>
+                <div class="stat-label">コイン購入数</div>
+              </div>
+                
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <div class="stat-value" id="rubyStat">0</div>
+                <div class="stat-label">スコア購入数</div>
+              </div>
+                
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
+                  </svg>
+                </div>
+                <div class="stat-value" id="tsumStat">0</div>
+                <div class="stat-label">ツム購入数</div>
+              </div>
+                
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <div class="stat-value" id="lastPurchaseStat">-</div>
+                <div class="stat-label">最終購入日</div>
+              </div>
+            </div>
+              
+            <h3 class="shop-category-title">個人購入統計</h3>
+            <div class="chart-container" id="personalChart"></div>
+          </div>
+            
+          <div class="stats-content" id="global-stats" style="display: none;" role="tabpanel">
+            <h3 class="shop-category-title">グローバル統計</h3>
+            <div class="chart-container" id="globalChart"></div>
+          </div>
+        </div>
+      </section>
+        
+      <section class="tab-content" id="settings-tab" role="tabpanel" aria-labelledby="settings-tab">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">設定</h2>
+          </div>
+            
+          <div class="settings-grid">
+            <div class="setting-item">
+              <div>
+                <div class="setting-label">ダークモード</div>
+                <div class="setting-description">ダークモードを切り替えます</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+              
+            <div class="setting-item">
+              <div>
+                <div class="setting-label">通知</div>
+                <div class="setting-description">通知を有効にします</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="notificationsToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+              
+            <div class="setting-item">
+              <div>
+                <div class="setting-label">アニメーション</div>
+                <div class="setting-description">アニメーションを有効にします</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="animationsToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+              
+            <div class="setting-item">
+              <div>
+                <div class="setting-label">アクセントカラー</div>
+                <div class="setting-description">アプリのアクセントカラーを選択します</div>
+              </div>
+              <div class="color-picker">
+                <button class="color-option" data-color="pink" style="background-color: #DB2777;" aria-label="ピンク"></button>
+                <button class="color-option" data-color="blue" style="background-color: #2563EB;" aria-label="ブルー"></button>
+                <button class="color-option" data-color="green" style="background-color: #059669;" aria-label="グリーン"></button>
+                <button class="color-option" data-color="purple" style="background-color: #7C3AED;" aria-label="パープル"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+      
+    <footer class="footer">
+      &copy; 2025 しぶちゃん - るる
+    </footer>
+  </div>
+  
+  <button class="cart-button" id="cartButton" aria-label="カートを開く">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+    </svg>
+    <div class="cart-count">0</div>
+  </button>
+  
+  <aside class="cart-panel" id="cartPanel">
+    <div class="cart-header">
+      <div class="cart-title">ショッピングカート</div>
+      <button class="cart-close" id="cartClose" aria-label="カートを閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+      
+    <div class="cart-items" id="cartItems"></div>
+      
+    <div class="cart-footer">
+      <div class="cart-total">
+        <div class="cart-total-label">合計</div>
+        <div class="cart-total-value" id="cartTotal">¥0</div>
+      </div>
+        
+      <button class="cart-checkout" id="checkoutButton">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        購入手続きへ
+      </button>
+    </div>
+  </aside>
+  
+  <div class="checkout-overlay" id="checkoutOverlay" aria-hidden="true">
+    <div class="checkout-panel" role="dialog" aria-labelledby="checkout-title">
+      <div class="checkout-header">
+        <div class="checkout-title" id="checkout-title">購入確認</div>
+        <button class="checkout-close" id="checkoutClose" aria-label="閉じる">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+        
+      <div class="checkout-content">
+        <div class="checkout-section">
+          <div class="checkout-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            注文内容
+          </div>
+            
+          <div class="checkout-summary" id="checkoutSummary"></div>
+        </div>
+          
+        <div class="checkout-section">
+          <div class="checkout-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            お支払い方法
+          </div>
+            
+          <div class="payment-method">
+            <div class="payment-option selected">
+              <div class="payment-option-radio"></div>
+              <div class="payment-option-icon">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 512 512"
+    width="24"
+    height="24"
+    style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421"
+  >
+    <path
+      d="M0 440V158.738s131.744-11.727 186.883.211c-2.329 9.04-87.554 352.744-87.63 353.051H72a72.003 72.003 0 0 1-72-72zM.003 71.423a72.003 72.003 0 0 1 21.085-50.335A72.003 72.003 0 0 1 72 0h368a72.003 72.003 0 0 1 72 72v368a72.003 72.003 0 0 1-72 72H129.748c4.352-15.755 20.908-82.776 23.655-97.813 80.269-5.595 272.652-27.243 275.57-158 1.481-66.352-59.017-112.721-132.722-143.816C202.908 72.991 79.467 70.234.003 71.423zm214.776 90.033c21.523 2.007 110.962 15.969 161.507 51.474 61.45 43.165 24.516 88.201-14.722 106.241-36.425 16.745-101.235 38.501-192.706 31.97 3.26-11.59 43.656-182.295 45.921-189.685z"
+      style="fill:rgb(254,1,50)"
+    />
+  </svg>
+</div>
+              <div class="payment-option-label">PayPay</div>
+            </div>
+              
+            <div class="payment-details">
+  <div class="payment-info">
+    <div class="payment-amount" id="paymentAmount">¥0</div>
+    <div class="payment-instruction">以下のボタンをクリックして支払いを完了してください</div>
+  </div>
+  
+  <div class="payment-button-container">
+    <button class="payment-button" id="paymentButton">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+        <line x1="1" y1="10" x2="23" y2="10"></line>
+      </svg>
+      PayPayで支払う
+    </button>
+  </div>
+  
+  <div class="payment-transaction" id="paymentTransactionFields" style="display: none;">
+    <div class="payment-transaction-group">
+      <div class="payment-transaction-label">PayPay取引ID</div>
+      <input type="text" class="payment-transaction-input" id="paypayId" 
+             placeholder="XXXXXXXXXXXXXXXXXXXXを入力" pattern="[A-Z0-9]{20}">
+      <div class="transaction-validation" id="paypayValidation"></div>
+    </div>
+    
+    <div class="payment-transaction-group" id="lineTokenGroup" style="display: none;">
+      <div class="payment-transaction-label">LINEコード</div>
+      <input type="text" class="payment-transaction-input" id="lineToken" placeholder="XXXXXを入力">
+      <div class="transaction-validation" id="lineValidation"></div>
+      
+      <a href="https://daiko.in/" target="_blank" rel="noopener noreferrer" class="line-token-button">
+        LINEトークンを取得する
+      </a>
+    </div>
+  </div>
+</div>
+          </div>
+        </div>
+          
+        <div class="terms-section">
+          <div class="terms-toggle" id="termsToggle">
+            <div class="terms-checkbox"></div>
+            <div class="terms-label">
+              <a href="#" id="termsLink">利用規約</a>に同意します
+            </div>
+          </div>
+            
+          <div class="terms-content" id="termsContent">
+            <div class="terms-text">
+              1. 本サービスは、ツムツムの代行を自動的に行います。<br>
+              2. 購入完了した場合の返品・返金はできません。<br>
+              3. アイテムの配布はPayPay決済確認後、必要情報記入で数十秒で終わります。<br>
+              4. 不正行為が発覚した場合、アカウントの停止措置を取らせていただく場合があります。<br>
+              5. 当サービスの利用によって生じたいかなる損害についても、当社は責任を負いません。
+            </div>
+          </div>
+        </div>
+      </div>
+        
+      <div class="checkout-actions">
+        <button class="checkout-back" id="checkoutBackButton">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          戻る
+        </button>
+          
+        <button class="checkout-confirm" id="confirmPurchaseButton" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          購入を確定
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="success-overlay" id="successOverlay" aria-hidden="true">
+    <div class="success-panel" role="dialog" aria-labelledby="success-title">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+        
+      <div class="success-title" id="success-title">購入完了</div>
+      <div class="success-message">
+        ご購入ありがとうございます！<br>
+        アイテムは24時間以内に配布されます。
+      </div>
+        
+      <button class="success-button" id="successCloseButton">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="M12 5l7 7-7 7"></path>
+        </svg>
+        ショップに戻る
+      </button>
+    </div>
+  </div>
+  
+  <div class="notification" id="notification" role="alert" aria-live="polite">
+    <div class="notification-header">
+      <div class="notification-title" id="notificationTitle"></div>
+      <button class="notification-close" id="notificationClose" aria-label="通知を閉じる">×</button>
+    </div>
+    <div class="notification-message" id="notificationMessage"></div>
+    <div class="notification-progress">
+      <div class="notification-progress-bar"></div>
+    </div>
+  </div>
+
+  <div class="set-config-overlay" id="setConfigOverlay" aria-hidden="true">
+    <div class="set-config-panel">
+      <div class="set-config-header">
+  <div class="set-config-title" id="setConfigTitle">セット内容の指定</div>
+  <button class="set-config-close" id="setConfigClose" aria-label="閉じる">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</div>
+      <div class="set-config-content" id="setConfigContent"></div>
+      <div class="set-config-actions">
+        <button class="set-config-back" id="setConfigBackButton">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          戻る
+        </button>
+        <button class="set-config-confirm" id="setConfigConfirmButton">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          確定
+        </button>
+      </div>
+    <div class="set-config-steps-indicator" id="setConfigStepsIndicator"></div>
+    </div>
+  </div>
+
+  <div class="tsum-select-overlay" id="tsumSelectOverlay" aria-hidden="true">
+    <div class="tsum-select-panel">
+      <div class="tsum-select-header">
+        <div class="tsum-select-title">ツムの選択</div>
+        <button class="tsum-select-close" id="tsumSelectClose" aria-label="閉じる">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="tsum-select-search">
+        <input type="text" id="tsumSearchInput" class="tsum-search-input" placeholder="ツム名を入力して検索...">
+        <div class="tsum-search-results" id="tsumSearchResults"></div>
+      </div>
+      <div class="tsum-select-content">
+        <div class="tsum-select-form">
+          <div class="tsum-select-item">
+            <label for="tsumName">選択したツム:</label>
+            <div id="selectedTsumName" class="selected-tsum-name">未選択</div>
+            <input type="hidden" id="selectedTsumId" value="">
+          </div>
+        
+        </div>
+      </div>
+      <div class="tsum-select-actions">
+        <button class="tsum-select-cancel" id="tsumSelectCancelButton">キャンセル</button>
+        <button class="tsum-select-confirm" id="tsumSelectConfirmButton" disabled>確定</button>
+      </div>
+    <div id="tsum-limit-indicator" class="set-config-description"></div>
+    </div>
+  </div>
+    <script>
+    (function() {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const storedTheme = localStorage.getItem('tsumTsumDarkMode');
+      const isDarkMode = storedTheme === null ? prefersDark : storedTheme === 'true';
+      document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+      if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+      }
+    })();
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
