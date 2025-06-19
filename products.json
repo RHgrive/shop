@@ -1,0 +1,315 @@
+[
+  {
+    "id": "set-a",
+    "name": "セットA",
+    "type": "set",
+    "icon": "<path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'></path><polyline points='3.27 6.96 12 12.01 20.73 6.96'></polyline><line x1='12' y1='22.08' x2='12' y2='12'></line>",
+    "description": "コイン-プレイヤーレベル-ツムレベル1体のセット",
+    "basePrice": 500,
+    "priceRange": "¥500",
+    "options": [
+      {
+        "label": "パックタイプ",
+        "choices": [
+          {
+            "label": "スタンダード",
+            "value": "standard",
+            "price": 500
+          }
+        ]
+      }
+    ],
+    "contents": ["coin", "プレラン", "ツムレベ"],
+    "featured": true,
+    "theme": {
+      "light": {
+        "iconBg": "rgba(255, 107, 157, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(255, 107, 157, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "set-b",
+    "name": "セットB",
+    "type": "set",
+    "icon": "<path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'></path><polyline points='3.27 6.96 12 12.01 20.73 6.96'></polyline><line x1='12' y1='22.08' x2='12' y2='12'></line>",
+    "description": "コイン-プレイヤーレベル-ツムレベル-プレボ・ハピボ完売のセット",
+    "basePrice": 1600,
+    "priceRange": "¥1,600",
+    "options": [
+      {
+        "label": "パックタイプ",
+        "choices": [
+          {
+            "label": "プレミアム",
+            "value": "premium",
+            "price": 1600
+          }
+        ]
+      }
+    ],
+    "contents": ["coin", "プレラン", "ツムレベ", "premium-box", "happiness-box"],
+    "featured": true,
+    "theme": {
+      "light": {
+        "iconBg": "rgba(37, 99, 235, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(37, 99, 235, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "set-c",
+    "name": "セットC",
+    "type": "set",
+    "icon": "<path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'></path><polyline points='3.27 6.96 12 12.01 20.73 6.96'></polyline><line x1='12' y1='22.08' x2='12' y2='12'></line>",
+    "description": "コイン-プレイヤーレベル-スコア指定-プレボ・セレボ完売-ツムレベル5体のセット",
+    "basePrice": 2500,
+    "priceRange": "¥2,500",
+    "options": [
+      {
+        "label": "パックタイプ",
+        "choices": [
+          {
+            "label": "デラックス",
+            "value": "deluxe",
+            "price": 2500
+          }
+        ]
+      }
+    ],
+    "contents": ["coin", "プレラン", "score", "premium-box", "select-box", "ツムレベ"],
+    "featured": true,
+    "theme": {
+      "light": {
+        "iconBg": "rgba(5, 150, 105, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(5, 150, 105, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "coin",
+    "name": "コイン",
+    "type": "single",
+    "icon": "<circle cx='12' cy='12' r='10'></circle><path d='M16 8v8'></path><path d='M12 12v4'></path><path d='M8 8v8'></path>",
+    "description": "ゲーム内で使用できるコイン。ガチャやアイテム購入に使えます。",
+    "basePrice": 300,
+    "priceRange": "¥300",
+    "options": [
+      {
+        "label": "数量",
+        "choices": [
+          {
+            "label": "",
+            "value": "custom",
+            "price": 0
+          }
+        ],
+        "hasCustom": true,
+        "customPlaceholder": "コイン数を入力",
+        "customMin": 10000,
+        "customMax": 2147483647,
+        "customStep": 10000
+      }
+    ],
+    "theme": {
+      "light": {
+        "iconBg": "rgba(234, 179, 8, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(234, 179, 8, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "プレラン",
+    "name": "プレイヤーレベル指定",
+    "type": "single",
+    "icon": "<path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle>",
+    "description": "プレイヤーレベルを指定のレベルまで上げます",
+    "basePrice": 300,
+    "priceRange": "¥300",
+    "options": [
+      {
+        "label": "レベル",
+        "choices": [
+          {
+            "label": "",
+            "value": "custom",
+            "price": 300
+          }
+        ],
+        "hasCustom": true,
+        "customPlaceholder": "レベルを入力",
+        "customMin": 1,
+        "customMax": 1100
+      }
+    ],
+    "theme": {
+      "light": {
+        "iconBg": "rgba(124, 58, 237, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(124, 58, 237, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "premium-box",
+    "name": "プレミアムBOX完売",
+    "type": "box",
+    "icon": "<path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'></path><polyline points='3.27 6.96 12 12.01 20.73 6.96'></polyline><line x1='12' y1='22.08' x2='12' y2='12'></line>",
+    "description": "プレミアムBOXを完売させます",
+    "basePrice": 700,
+    "priceRange": "¥700",
+    "options": [
+      {
+        "label": "BOXタイプ",
+        "choices": [
+          {
+            "label": "プレミアム",
+            "value": "premium",
+            "price": 700
+          }
+        ]
+      }
+    ],
+    "theme": {
+      "light": {
+        "iconBg": "rgba(219, 39, 119, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(219, 39, 119, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "happiness-box",
+    "name": "ハピネスBOX完売",
+    "type": "box",
+    "icon": "<path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'></path><polyline points='3.27 6.96 12 12.01 20.73 6.96'></polyline><line x1='12' y1='22.08' x2='12' y2='12'></line>",
+    "description": "ハピネスBOXを完売させます",
+    "basePrice": 700,
+    "priceRange": "¥700",
+    "options": [
+      {
+        "label": "BOXタイプ",
+        "choices": [
+          {
+            "label": "ハピネス",
+            "value": "happiness",
+            "price": 700
+          }
+        ]
+      }
+    ],
+    "theme": {
+      "light": {
+        "iconBg": "rgba(249, 115, 22, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(249, 115, 22, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "select-box",
+    "name": "セレクトBOX完売",
+    "type": "box",
+    "icon": "<path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'></path><polyline points='3.27 6.96 12 12.01 20.73 6.96'></polyline><line x1='12' y1='22.08' x2='12' y2='12'></line>",
+    "description": "セレクトBOXを完売させます",
+    "basePrice": 400,
+    "priceRange": "¥400",
+    "options": [
+      {
+        "label": "BOXタイプ",
+        "choices": [
+          {
+            "label": "セレクト",
+            "value": "select",
+            "price": 400
+          }
+        ]
+      }
+    ],
+    "theme": {
+      "light": {
+        "iconBg": "rgba(16, 185, 129, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(16, 185, 129, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "ツムレベ",
+    "name": "ツムレベル",
+    "type": "single",
+    "icon": "<path d='M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5'></path><path d='M8.5 8.5v.01'></path><path d='M16 15.5v.01'></path><path d='M12 12v.01'></path><path d='M11 17v.01'></path><path d='M7 14v.01'></path>",
+    "description": "お好きなツムのレベルをアップ！",
+    "basePrice": 200,
+    "priceRange": "¥200/体",
+    "options": [
+      {
+        "label": "数量",
+        "choices": [
+          {
+            "label": "選択",
+            "value": "select",
+            "price": 200
+          }
+        ],
+        "hasCustom": true,
+        "customPlaceholder": "ツム数を入力",
+        "customMin": 1,
+        "customMax": 50
+      }
+    ],
+    "theme": {
+      "light": {
+        "iconBg": "rgba(236, 72, 153, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(236, 72, 153, 0.3)"
+      }
+    }
+  },
+  {
+    "id": "score",
+    "name": "スコア指定",
+    "type": "single",
+    "icon": "<path d='M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2z'></path><path d='M16 8h.01'></path><path d='M8 8h.01'></path><path d='M8 16h.01'></path><path d='M16 16h.01'></path><path d='M12 12h.01'></path>",
+    "description": "スコアを指定の値まで上げます",
+    "basePrice": 500,
+    "priceRange": "¥500",
+    "options": [
+      {
+        "label": "スコア",
+        "choices": [
+          {
+            "label": "",
+            "value": "custom",
+            "price": 500
+          }
+        ],
+        "hasCustom": true,
+        "customPlaceholder": "スコアを入力",
+        "customMin": 1000000,
+        "customStep": 1000000
+      }
+    ],
+    "theme": {
+      "light": {
+        "iconBg": "rgba(59, 130, 246, 0.2)"
+      },
+      "dark": {
+        "iconBg": "rgba(59, 130, 246, 0.3)"
+      }
+    }
+  }
+]
