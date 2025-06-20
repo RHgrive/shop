@@ -28,15 +28,23 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   })
 
-  const evt=new EventSource('/api/order/'+order_id+'/stream')
-  evt.onmessage=e=>{
-    appendLog(e)
-    try{
-      const j=JSON.parse(e.data)
-      if(j.done){
-        const li=taskList.querySelector(`li[data-id="${j.id}"]`)
-        if(li)li.classList.add('task-complete')
-      }
-    }catch{}
+  let evt
+  function connect(){
+    evt=new EventSource('/api/order/'+order_id+'/stream')
+    evt.onmessage=e=>{
+      appendLog(e)
+      try{
+        const j=JSON.parse(e.data)
+        if(j.done){
+          const li=taskList.querySelector(`li[data-id="${j.id}"]`)
+          if(li)li.classList.add('task-complete')
+        }
+      }catch{}
+    }
+    evt.onerror=()=>{
+      evt.close()
+      setTimeout(connect,5000)
+    }
   }
+  connect()
 })

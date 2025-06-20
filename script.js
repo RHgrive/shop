@@ -1320,6 +1320,7 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
           alert("注文IDが不正です");
         }
       };
+      jumpId.addEventListener("keyup", e => { if (e.key === "Enter") jumpBtn.click() })
     }
 
     tabs.forEach((tab) => {
@@ -1681,9 +1682,9 @@ function buildLastData(cart) {
       modal.className = "order-modal"
       modal.innerHTML = `
         <div class="order-id">${order_id}</div>
-        <button class="order-copy">コピー</button>
+        <button class="order-copy" aria-label="コピー">コピー</button>
         <div class="blink">スクリーンショットを保存してください</div>
-        <button class="order-open">代行画面を開く</button>
+        <button class="order-open" aria-label="代行画面を開く">代行画面を開く</button>
       `
       document.body.appendChild(modal)
       modal.querySelector(".order-copy").onclick = () => navigator.clipboard.writeText(order_id)
