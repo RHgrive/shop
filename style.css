@@ -88,6 +88,11 @@ button:active {
   transform: scale(0.97);
 }
 
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
 .backdrop-blur {
   position: fixed;
   top: 0;
@@ -106,12 +111,21 @@ button:active {
 }
 
 .container {
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+@media (min-width: 480px) {
+  .container { max-width: 480px; }
+}
+@media (min-width: 768px) {
+  .container { max-width: 600px; }
+}
+@media (min-width: 1024px) {
+  .container { max-width: 480px; }
 }
 
 .header {
@@ -1108,8 +1122,7 @@ input:checked + .slider:before {
 }
 
 .checkout-panel {
-  width: 100%;
-  max-width: 600px;
+  width: clamp(320px, 90%, 480px);
   max-height: 90vh;
   background-color: var(--bg-primary);
   border-radius: var(--radius-lg);
@@ -1580,8 +1593,7 @@ input:checked + .slider:before {
 }
 
 .success-panel {
-  width: 100%;
-  max-width: 400px;
+  width: clamp(320px, 90%, 480px);
   background-color: var(--bg-primary);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -1602,6 +1614,7 @@ input:checked + .slider:before {
   left: 0;
   right: 0;
   bottom: 0;
+  width: clamp(320px, 90%, 480px);
   height: 90vh;
   backdrop-filter: blur(20px);
   background: rgba(255,255,255,0.5);
@@ -1887,8 +1900,7 @@ input:checked + .slider:before {
 }
 
 .set-config-panel {
-  width: 90%;
-  max-width: 600px;
+  width: clamp(320px, 90%, 480px);
   max-height: 90vh;
   background-color: var(--bg-primary);
   border-radius: var(--radius-lg);
@@ -2097,8 +2109,7 @@ input:checked + .slider:before {
 }
 
 .tsum-select-panel {
-  width: 90%;
-  max-width: 500px;
+  width: clamp(320px, 90%, 480px);
   max-height: 90vh;
   background-color: var(--bg-primary);
   border-radius: var(--radius-lg);

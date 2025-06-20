@@ -8,7 +8,7 @@ Always output full, non-truncated files.
 
 ## 2. File Structure (frontend only)
 index.html        – メイン SPA。全セクション(nav, shop, stats, settings, cart, modal)
-style.css         – モバイル前提のネイティブ風デザイン。iPad 横向きも viewport 375 px 固定
+style.css         – モバイル前提のネイティブ風デザイン。480/768/1024 ブレークポイント対応
 script.js         – 全 UI ロジック。モジュール化せず即時実行
 products.json     – 商品マスター
 tsumlist.json     – 各ツム定義
@@ -46,7 +46,7 @@ Debug.txt         – デバッグメモ（毎回再生成可）
 
 ## 5. Technical Policies
 * **No Tailwind, No jQuery**.  
-* Viewport width 固定 375 px; CSS `clamp()` でスケール調整。  
+* Viewport は `width=device-width`。480 px, 768 px, 1024 px のブレークポイントでレイアウトを調整。
 * Use `fetch` + `AbortController`; long polling 禁止。实时同期は `EventSource`。  
 * Use `localStorage` key `tsumshop_order_id` to cache last successful ID.  
 * Accessibility: `label`/`for`, `role="button"`, `aria-live` for SSE logs.  

@@ -2,7 +2,7 @@
 <html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=375, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>ツムツムアイテムショップ</title>
   <link rel="stylesheet" href="style.css">
@@ -24,7 +24,7 @@
           <a href="#" class="nav-link active">ホーム</a>
           <a href="#contact" class="nav-link">お問い合わせ</a>
           <input id="jumpId" class="form-input" placeholder="注文ID">
-          <button id="jumpBtn">開く</button>
+          <button id="jumpBtn" aria-label="開く">開く</button>
         </nav>
       </div>
     </header>
@@ -225,7 +225,7 @@
         <div class="cart-total-value" id="cartTotal">¥0</div>
       </div>
         
-      <button class="cart-checkout" id="checkoutButton">
+      <button class="cart-checkout" id="checkoutButton" aria-label="購入手続きへ">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="1" x2="12" y2="23"></line>
           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
@@ -297,7 +297,7 @@
   </div>
   
   <div class="payment-button-container">
-    <button class="payment-button" id="paymentButton">
+    <button class="payment-button" id="paymentButton" aria-label="PayPayで支払う">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
         <line x1="1" y1="10" x2="23" y2="10"></line>
@@ -349,7 +349,7 @@
       </div>
         
       <div class="checkout-actions">
-        <button class="checkout-back" id="checkoutBackButton">
+        <button class="checkout-back" id="checkoutBackButton" aria-label="戻る">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -357,7 +357,7 @@
           戻る
         </button>
           
-        <button class="checkout-confirm" id="confirmPurchaseButton" disabled>
+        <button class="checkout-confirm" id="confirmPurchaseButton" aria-label="購入を確定" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -383,7 +383,7 @@
         アイテムは24時間以内に配布されます。
       </div>
         
-      <button class="success-button" id="successCloseButton">
+      <button class="success-button" id="successCloseButton" aria-label="ショップに戻る">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14"></path>
           <path d="M12 5l7 7-7 7"></path>
@@ -417,14 +417,14 @@
 </div>
       <div class="set-config-content" id="setConfigContent"></div>
       <div class="set-config-actions">
-        <button class="set-config-back" id="setConfigBackButton">
+        <button class="set-config-back" id="setConfigBackButton" aria-label="戻る">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
           戻る
         </button>
-        <button class="set-config-confirm" id="setConfigConfirmButton">
+        <button class="set-config-confirm" id="setConfigConfirmButton" aria-label="確定">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -462,8 +462,8 @@
         </div>
       </div>
       <div class="tsum-select-actions">
-        <button class="tsum-select-cancel" id="tsumSelectCancelButton">キャンセル</button>
-        <button class="tsum-select-confirm" id="tsumSelectConfirmButton" disabled>確定</button>
+        <button class="tsum-select-cancel" id="tsumSelectCancelButton" aria-label="キャンセル">キャンセル</button>
+        <button class="tsum-select-confirm" id="tsumSelectConfirmButton" aria-label="確定" disabled>確定</button>
       </div>
     <div id="tsum-limit-indicator" class="set-config-description"></div>
     </div>
