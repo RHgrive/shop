@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const loginBtn = document.getElementById('loginBtn')
 
   function renderTasks(tasks){
-    taskList.innerHTML = tasks.map(t=>`<li data-id="${t.id}"${t.done?' class="task-complete"':''}>${t.name}</li>`).join('')
+    taskList.innerHTML = tasks.map(t=>`<li data-id="${t.id}"${t.done?' class="task-complete"':''}>${t.name}<button class="task-btn"${t.done?' disabled':''} aria-label="実行">代行する</button></li>`).join('')
   }
 
   function appendLog(e){
@@ -24,9 +24,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   taskList.addEventListener('click',e=>{
-    if(e.target.matches('li')){
-      const id=e.target.dataset.id
+    if(e.target.matches('.task-btn')){
+      const li=e.target.closest('li')
+      const id=li.dataset.id
       fetch(`${API_BASE}/order/${order_id}/execute/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:loginCode.value})})
+        .then(r=>{if(r.ok){e.target.disabled=true;li.classList.add('task-complete')}else{alert('実行に失敗しました')}})
         .catch(()=>alert('実行に失敗しました'))
     }
   })
@@ -40,7 +42,11 @@ document.addEventListener('DOMContentLoaded',()=>{
         const j=JSON.parse(e.data)
         if(j.done){
           const li=taskList.querySelector(`li[data-id="${j.id}"]`)
-          if(li)li.classList.add('task-complete')
+          if(li){
+            li.classList.add('task-complete')
+            const b=li.querySelector('.task-btn')
+            if(b)b.disabled=true
+          }
         }
       }catch{}
     }
