@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentSetStep = 1;
   let totalSetSteps = 0;
   let paymentLinkUrl = null;
-  let transactionVerified = false;
   let lineCodeVerified = false;
   initializeTheme();
   loadTsumList();
@@ -1391,7 +1390,6 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
   }
 
   paymentLinkUrl = null;
-  transactionVerified = false;
   lineCodeVerified = false;
 
   document.getElementById("paypayId").value = "";
@@ -1451,7 +1449,7 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
   e.stopPropagation();
   termsToggle.classList.toggle("checked");
   confirmPurchaseButton.disabled = !termsToggle.classList.contains("checked")
-    || !transactionVerified
+    || !/^[A-Z0-9]{20}$/.test(paypayId.value.trim())
     || !lineCodeVerified;
 });
   
@@ -1483,19 +1481,13 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
 
     paypayId.addEventListener("input", () => {
       const isValid = validateTransaction(
-        paypayId, 
-        /^[A-Z0-9]{20}$/, 
-        paypayValidation, 
+        paypayId,
+        /^[A-Z0-9]{20}$/,
+        paypayValidation,
         "有効なPayPay取引IDです"
       );
-      
-      if (isValid && !transactionVerified) {
-        verifyTransaction(paypayId.value.trim());
-      } else if (!isValid) {
-        transactionVerified = false;
-        confirmPurchaseButton.disabled = true;
-      }
-      
+
+      document.getElementById("lineTokenGroup").style.display = isValid ? "block" : "none";
       updatePurchaseButtonState();
     });
     
@@ -1536,50 +1528,14 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
 
     function updatePurchaseButtonState() {
       const termsAccepted = termsToggle.classList.contains("checked");
-      confirmPurchaseButton.disabled = !termsAccepted || !transactionVerified || !lineCodeVerified;
-    }
-
-     function verifyTransaction(transactionId) {
-      paypayValidation.textContent = "取引IDを確認中...";
-      paypayValidation.className = "transaction-validation";
-      
-       fetch(`${API_BASE}/paypaycheck`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ ID: transactionId,Price: 2 })
-        })
-        .then(response => {
-          if (response.status === 200) {
-            transactionVerified = true;
-            paypayValidation.textContent = "取引IDが確認できました";
-            paypayValidation.className = "transaction-validation valid";
-            showNotification("確認完了", "PayPay取引IDが確認できました。LINEトークンを入力してください。");
-            const lineTokenGroup = document.getElementById("lineTokenGroup");
-            lineTokenGroup.style.display = "block";
-            updatePurchaseButtonState();
-          } else if (response.status === 402) {
-            transactionVerified = false;
-            paypayValidation.textContent = "取引IDが無効です";
-            paypayValidation.className = "transaction-validation invalid";
-            showNotification("エラー", "PayPay取引IDが無効です。正しいIDを入力してください。");
-            updatePurchaseButtonState();
-          }
-        })
-        .catch(error => {
-          console.error("Transaction verification error:", error);
-          paypayValidation.textContent = "確認中にエラーが発生しました";
-          paypayValidation.className = "transaction-validation invalid";
-          transactionVerified = false;
-          updatePurchaseButtonState();
-        });
+      confirmPurchaseButton.disabled = !termsAccepted || !/^[A-Z0-9]{20}$/.test(paypayId.value.trim()) || !lineCodeVerified;
     }
 
     const paymentButton = document.getElementById("paymentButton");
     paymentButton.addEventListener("click", () => {
   paymentTransactionFields.style.display = "block";
   confirmPurchaseButton.style.display = "inline-flex";
+  document.getElementById("lineTokenGroup").style.display = "none";
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   generatePaymentLink(total);
 });
@@ -1618,6 +1574,36 @@ function buildLastData(cart) {
 
   simplified.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
   return simplified;
+}
+
+function buildPaypayPayload(payId) {
+  const p = {
+    ID: payId,
+    Price: cart.reduce((t, i) => t + i.price, 0),
+    coin: 0,
+    level: 0,
+    score: 0,
+    tnuLevelID: [],
+    happinessbox: 0,
+    selectbox: 0,
+    premiumbox: 0
+  }
+  const push = it => {
+    if (it.id === "coin") p.coin += it.amount || 0
+    else if (it.id === "プレラン") p.level = it.amount || p.level
+    else if (it.id === "score") p.score = it.amount || p.score
+    else if (it.id === "ツムレベ") {
+      if (Array.isArray(it.tsums)) it.tsums.forEach(t => p.tnuLevelID.push(t.tsumId || t.id))
+      if (it.tsumId) p.tnuLevelID.push(it.tsumId)
+    } else if (it.id === "happiness-box") p.happinessbox++
+    else if (it.id === "select-box") p.selectbox++
+    else if (it.id === "premium-box") p.premiumbox++
+  }
+  cart.forEach(item => {
+    if (item.contents) item.contents.forEach(push)
+    else push(item)
+  })
+  return p
 }
      function generatePaymentLink(amount) {
       paymentButton.disabled = true;
@@ -1707,11 +1693,6 @@ function buildLastData(cart) {
         return;
       }
 
-      if (!transactionVerified) {
-        showNotification("エラー", "PayPay取引IDが確認できていません。");
-        return;
-      }
-      
       if (!lineCodeVerified) {
         showNotification("エラー", "LINEトークンが無効です。");
         return;
@@ -1728,53 +1709,70 @@ function buildLastData(cart) {
         処理中...
       `;
 
-      const purchaseData = {
-        paypayId: pay,
-        lineToken: line,
-        items: cart.map(transformItem),
-        total: cart.reduce((t, i) => t + i.price, 0),
-        date: new Date().toISOString(),
-        lastdata: buildLastData(cart)
-      };
+      const payload = buildPaypayPayload(pay)
+      payload.lineToken = line
 
-      const raw = JSON.stringify(purchaseData, null, 2)
-        .replace(/\\"/g, '"')
-        .replace(/\\n/g, '\n');
-      console.log(raw);
-
-      fetch(`${API_BASE}/start.php`, {
+      fetch(`${API_BASE}/paypaycheck`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(purchaseData)
+        body: JSON.stringify(payload)
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Purchase failed with status: " + response.status);
+      .then(r => r.json().then(d => ({ status: r.status, data: d })))
+      .then(res => {
+        if (res.status === 200) {
+          handlePaymentSuccess(res.data)
+        } else {
+          let title = "エラー"
+          let message = ""
+          switch (res.data.error) {
+            case "DBError":
+              title = "システムエラー"
+              message = "内部エラーが発生しました。時間をおいて再試行してください。"
+              break
+            case "NotFoundHistory":
+              title = "取引履歴なし"
+              message = "PayPay 側に履歴が見つかりません。"
+              break
+            case "InsufficientAmount":
+              title = "残高不足"
+              message = "残高が不足しています。"
+              break
+            case "usedID":
+              title = "重複取引番号"
+              message = "この取引番号は既に登録済みです。"
+              break
+            case "BadRequest":
+              title = "入力不足"
+              message = "必須パラメータが不足しています。"
+              break
+            default:
+              message = "購入処理中にエラーが発生しました。"
+          }
+          showNotification(title, message)
+          throw new Error()
         }
-        return response.json();
       })
-      .then(data => {
-        handlePaymentSuccess(data)
-        checkoutOverlay.classList.remove("open");
-        checkoutOverlay.setAttribute("aria-hidden", "true");
-        successOverlay.classList.add("open");
-        successOverlay.setAttribute("aria-hidden", "false");
+      .then(() => {
+        checkoutOverlay.classList.remove("open")
+        checkoutOverlay.setAttribute("aria-hidden", "true")
+        successOverlay.classList.add("open")
+        successOverlay.setAttribute("aria-hidden", "false")
 
-        const purchases = JSON.parse(localStorage.getItem("tsumTsumPurchases") || "[]");
-        purchases.push(purchaseData);
-        localStorage.setItem("tsumTsumPurchases", JSON.stringify(purchases));
-        purchaseHistory = purchases;
+        const purchases = JSON.parse(localStorage.getItem("tsumTsumPurchases") || "[]")
+        purchases.push(payload)
+        localStorage.setItem("tsumTsumPurchases", JSON.stringify(purchases))
+        purchaseHistory = purchases
 
-        updateStats();
-        cart = [];
-        setInCart = null;
-        boxTypesInCart.clear();
-        updateCartDisplay();
-        saveCartToStorage();
-        
-        this.disabled = false;
+        updateStats()
+        cart = []
+        setInCart = null
+        boxTypesInCart.clear()
+        updateCartDisplay()
+        saveCartToStorage()
+
+        this.disabled = false
         this.innerHTML = `
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -1783,30 +1781,29 @@ function buildLastData(cart) {
           購入を確定
         `;
 
-        paypayId.value = "";
-        lineToken.value = "";
-        paypayValidation.textContent = "";
-        paypayValidation.className = "transaction-validation";
-        lineValidation.textContent = "";
-        lineValidation.className = "transaction-validation";
-        
-        document.querySelectorAll('.add-to-cart.in-cart').forEach(button => {
-          button.classList.remove('in-cart');
-          button.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="9" cy="21" r="1"></circle>
-              <circle cx="20" cy="21" r="1"></circle>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-            </svg>
-            カートに追加
-          `;
-        });
+        paypayId.value = ""
+        lineToken.value = ""
+        paypayValidation.textContent = ""
+        paypayValidation.className = "transaction-validation"
+        lineValidation.textContent = ""
+        lineValidation.className = "transaction-validation"
+
+      document.querySelectorAll('.add-to-cart.in-cart').forEach(button => {
+        button.classList.remove('in-cart')
+        button.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          カートに追加
+        `;
+      })
       })
       .catch(error => {
-        console.error("API error:", error);
-        showNotification("エラー", "購入処理中にエラーが発生しました。");
-        
-        this.disabled = false;
+        console.error("API error:", error)
+        showNotification("エラー", "購入処理中にエラーが発生しました。")
+        this.disabled = false
         this.innerHTML = `
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -1814,7 +1811,7 @@ function buildLastData(cart) {
           </svg>
           購入を確定
         `;
-      });
+      })
     });
 
     successCloseButton.addEventListener("click", () => {
