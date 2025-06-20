@@ -45,12 +45,13 @@ Debug.txt         – デバッグメモ（毎回再生成可）
 3. ホーム (`index.html`) に **注文 ID 入力 → 代行画面へ** のフォームを常設。
 
 ## 5. Technical Policies
-* **No Tailwind, No jQuery**.  
+* **No Tailwind, No jQuery**.
 * Viewport は `width=device-width`。480 px, 768 px, 1024 px のブレークポイントでレイアウトを調整。
-* Use `fetch` + `AbortController`; long polling 禁止。实时同期は `EventSource`。  
-* Use `localStorage` key `tsumshop_order_id` to cache last successful ID.  
-* Accessibility: `label`/`for`, `role="button"`, `aria-live` for SSE logs.  
-* Dark/Light theme via `prefers-color-scheme` + settings toggle.
+* `const API_BASE = "https://8883-106-160-31-181.ngrok-free.app/api"` を固定し、全ての API 呼び出しは `${API_BASE}/…` 形式。
+* `fetch` と `AbortController` を使用し、实时同期は `EventSource` で 5 s 再接続。
+* `localStorage` の `tsumshop_order_id` に注文 ID を保存。
+* Accessibility は `label`/`for`、`role="button"`、`aria-live` を徹底。
+* Dark/Light theme は `prefers-color-scheme` と設定トグルを組み合わせる。
 
 ## 6. Output Rules
 * Provide entire file contents when modified or new.  

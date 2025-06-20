@@ -122,10 +122,10 @@ button:active {
   .container { max-width: 480px; }
 }
 @media (min-width: 768px) {
-  .container { max-width: 600px; }
+  .container { max-width: 768px; }
 }
 @media (min-width: 1024px) {
-  .container { max-width: 480px; }
+  .container { max-width: 1024px; }
 }
 
 .header {
@@ -1626,6 +1626,25 @@ input:checked + .slider:before {
   justify-content: center;
   padding: 2rem 1rem;
   gap: 1rem;
+}
+.order-id {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  letter-spacing: 0.1rem;
+  text-transform: uppercase;
+}
+.order-copy,
+.order-open {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.order-copy:hover,
+.order-open:hover {
+  background-color: var(--accent-secondary);
 }
 
 .task-complete {
