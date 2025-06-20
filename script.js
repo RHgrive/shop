@@ -1,3 +1,4 @@
+const API_BASE = "https://8883-106-160-31-181.ngrok-free.app/api"
 document.addEventListener("DOMContentLoaded", () => {
   let products = [];
   let cart = [];
@@ -1509,7 +1510,7 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
       if (isValid) {
         lineCodeVerified = true;
         
-        fetch(`http://106.160.31.181:8120/api/getaccesstoken`, {
+        fetch(`${API_BASE}/getaccesstoken`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -1542,7 +1543,7 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
       paypayValidation.textContent = "取引IDを確認中...";
       paypayValidation.className = "transaction-validation";
       
-       fetch(`http://106.160.31.181:8120/api/paypaycheck`, {
+       fetch(`${API_BASE}/paypaycheck`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -1630,7 +1631,7 @@ function buildLastData(cart) {
         リンク生成中...
       `;
 
-      fetch("/api/getLink.php", {
+      fetch(`${API_BASE}/getLink.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -1678,16 +1679,17 @@ function buildLastData(cart) {
       const order_id = response.order_id
       if (!order_id) return
       localStorage.setItem("tsumshop_order_id", order_id)
+      const id = order_id.toUpperCase()
       const modal = document.createElement("div")
       modal.className = "order-modal"
       modal.innerHTML = `
-        <div class="order-id">${order_id}</div>
+        <div class="order-id">${id}</div>
         <button class="order-copy" aria-label="コピー">コピー</button>
         <div class="blink">スクリーンショットを保存してください</div>
         <button class="order-open" aria-label="代行画面を開く">代行画面を開く</button>
       `
       document.body.appendChild(modal)
-      modal.querySelector(".order-copy").onclick = () => navigator.clipboard.writeText(order_id)
+      modal.querySelector(".order-copy").onclick = () => navigator.clipboard.writeText(id)
       modal.querySelector(".order-open").onclick = () => { location.href = "/tsum/" + order_id }
     }
 
@@ -1740,7 +1742,7 @@ function buildLastData(cart) {
         .replace(/\\n/g, '\n');
       console.log(raw);
 
-      fetch("/api/start.php", {
+      fetch(`${API_BASE}/start.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
