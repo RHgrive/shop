@@ -3,3 +3,4 @@
 - 各エラーを UI 分岐表示
 - 代行画面の実行ボタンと SSE 再接続を確認
 - TODO: サーバー側 CORS 設定と order API 実装
+- Flow Compliance v3 反映、固定 PayPay URL に切替

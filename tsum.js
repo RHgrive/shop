@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const loginCode = document.getElementById('loginCode')
   const loginBtn = document.getElementById('loginBtn')
 
+  loginCode.addEventListener("keyup",e=>{if(e.key==="Enter")loginBtn.click()})
   function renderTasks(tasks){
     taskList.innerHTML = tasks.map(t=>`<li data-id="${t.id}"${t.done?' class="task-complete"':''}>${t.name}<button class="task-btn"${t.done?' disabled':''} aria-label="実行">代行する</button></li>`).join('')
   }
