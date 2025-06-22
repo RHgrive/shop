@@ -12,11 +12,16 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentTsumSelection = null;
   let currentSetStep = 1;
   let totalSetSteps = 0;
+  const copyToast = document.getElementById("copyToast");
+  const safeQuery = sel => document.querySelector(sel) || null;
+  function showCopyToast(msg){if(copyToast){copyToast.textContent=msg;copyToast.classList.add("show");setTimeout(()=>copyToast.classList.remove("show"),1500)}}
   initializeTheme();
   loadTsumList();
   loadProducts();
-  document.getElementById("paymentTransactionFields").style.display = "none";
-  document.getElementById("confirmPurchaseButton").style.display = "none";
+  const paymentTransactionFieldsEl = safeQuery("#paymentTransactionFields")
+  const confirmPurchaseButtonEl = safeQuery("#confirmPurchaseButton")
+  if (paymentTransactionFieldsEl) paymentTransactionFieldsEl.style.display = "none"
+  if (confirmPurchaseButtonEl) confirmPurchaseButtonEl.style.display = "none"
   
   function loadTsumList() {
     fetch("tsumlist.json")
@@ -115,10 +120,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     product.options.forEach((option) => {
       const optionDescription = option.label === "パックタイプ" ? "1つのみ選択可能です" : "";
-      const placeholder = option.customPlaceholder 
-      || (product.id === "coin" ? "コイン数を入力 (10000〜)" 
-      : product.id === "プレラン" ? "レベルを入力 (1〜1100)" 
-      : product.id === "score" ? "スコアを入力 (10000〜)" 
+      const placeholder = option.customPlaceholder
+      || (product.id === "coin" ? "コイン数を入力"
+      : product.id === "プレラン" ? "レベルを入力 (1〜1100)"
+      : product.id === "score" ? "スコアを入力 (10000〜)"
       : "");
       
       optionsHTML += `
@@ -143,11 +148,11 @@ document.addEventListener("DOMContentLoaded", () => {
             option.hasCustom
               ? `
               <div class="custom-amount" ${option.choices[0].value === "custom" ? 'style="display: block;"' : ''}>
-                <input type="number" class="form-input custom-amount-input" 
-                  placeholder="${placeholder}" 
-                  min="${option.customMin}" 
-                  ${option.customMax ? `max="${option.customMax}"` : ""} 
-                  step="${option.customStep || 1}"
+                <input type="number" class="form-input custom-amount-input"
+                  placeholder="${placeholder}"
+                  ${product.id === 'coin' ? '' : `min="${option.customMin}"`}
+                  ${option.customMax ? `max="${option.customMax}"` : ""}
+                  step="${product.id === 'coin' ? 1 : option.customStep || 1}"
                   ${product.id === "プレラン" ? 'max="1100"' : ''}>
               </div>
             `
@@ -327,8 +332,8 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
           customInput.classList.add("input-error");
           return;
         }
-        if (itemId === "coin" && v < 10000) {
-          showNotification("エラー", "コイン数は10,000以上で指定してください。");
+        if (itemId === "coin" && v < 1) {
+          showNotification("エラー", "コイン数は1以上で指定してください。");
           customInput.classList.add("input-error");
           return;
         }
@@ -349,8 +354,8 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
       customInput.classList.add("input-error");
       return;
     }
-    if (itemId === "coin" && v < 10000) {
-      showNotification("エラー", "コイン数は10,000以上で指定してください。");
+    if (itemId === "coin" && v < 1) {
+      showNotification("エラー", "コイン数は1以上で指定してください。");
       customInput.classList.add("input-error");
       return;
     }
@@ -454,9 +459,8 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
       if (contentId === "coin") {
         contentHTML += `
           <label class="set-config-label">コイン数を指定</label>
-          <div class="set-config-description">10,000コイン単位で指定できます</div>
-          <input type="number" class="set-config-input" id="set-coin-amount" 
-            min="10000" max="2147483647" step="10000" value="10000" placeholder="コイン数を入力 (10,000〜)">
+          <input type="number" class="set-config-input" id="set-coin-amount"
+            max="2147483647" step="1" value="1" placeholder="コイン数を入力">
         `;
       } else if (contentId === "プレラン") {
         contentHTML += `
@@ -557,8 +561,8 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
         if (contentId) {
           if (contentId === "coin") {
             const coinAmount = Number.parseInt(document.getElementById("set-coin-amount").value);
-            if (isNaN(coinAmount) || coinAmount < 10000) {
-              showNotification("エラー", "コイン数は10,000以上で指定してください。");
+            if (isNaN(coinAmount) || coinAmount < 1) {
+              showNotification("エラー", "コイン数は1以上で指定してください。");
               document.getElementById("set-coin-amount").classList.add("input-error");
               return;
             }
@@ -1276,9 +1280,9 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
     const savedSetInCart = localStorage.getItem("tsumTsumSetInCart");
     const savedBoxTypes = localStorage.getItem("tsumTsumBoxTypesInCart");
     const savedSelectedTsums = localStorage.getItem("tsumTsumSelectedTsums");
-    
+
     if (savedCart) {
-      cart = JSON.parse(savedCart);
+      try { cart = JSON.parse(savedCart) } catch { localStorage.removeItem("tsumTsumCart") }
     }
 
     if (savedSetInCart && savedSetInCart !== "null") {
@@ -1292,7 +1296,7 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
     updateCartDisplay();
 
     cart.forEach(item => {
-      const button = document.querySelector(`.shop-item[data-id="${item.id}"] .add-to-cart`);
+      const button = safeQuery(`.shop-item[data-id="${item.id}"] .add-to-cart`);
       if (button) {
         const itemId = button.closest('.shop-item')?.dataset.id;
         if (itemId !== "ツムレベ") {
@@ -1582,7 +1586,9 @@ function buildPaypayPayload(payId) {
       backdrop.classList.add("open")
       backdrop.setAttribute("aria-hidden","false")
       const close=()=>{backdrop.classList.remove("open");backdrop.setAttribute("aria-hidden","true")}
-      backdrop.querySelector(".order-copy").onclick=()=>navigator.clipboard.writeText(id).catch(()=>prompt("コピーできませんでした。手動でコピーしてください",id))
+      backdrop.querySelector(".order-copy").onclick=()=>navigator.clipboard.writeText(id)
+        .then(()=>{showNotification("コピー完了","注文IDをコピーしました");showCopyToast("コピーしました")})
+        .catch(()=>{prompt("コピーできませんでした。手動でコピーしてください",id)})
       backdrop.querySelector(".order-delete").onclick=close
       backdrop.querySelector(".order-open").onclick=()=>{location.href="/tsum.html?id="+order_id}
       backdrop.addEventListener("click",e=>{if(e.target===backdrop)close()},{once:true})
@@ -1594,7 +1600,7 @@ function buildPaypayPayload(payId) {
 
     function revalidateCart() {
       const items = buildLastData(cart);
-      if (items.some(i => i.id === "coin" && i.amount < 10000)) return false;
+      if (items.some(i => i.id === "coin" && i.amount < 1)) return false;
       if (items.some(i => i.id === "プレラン" && i.amount > 1100)) return false;
       if (items.some(i => i.id === "score" && i.amount < 1000000)) return false;
       return true;
@@ -1642,7 +1648,7 @@ function buildPaypayPayload(payId) {
         showNotification(title, message);
         return false;
       })
-      .catch(e=>{if(e.name==='TypeError')showNotification("通信エラー","ネットワーク/CORSに失敗しました");throw e});
+      .catch(e=>{showNotification("通信エラー","データ送信に失敗しました")})
     }
 
     function confirmPurchase() {

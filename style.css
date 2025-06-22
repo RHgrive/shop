@@ -1623,14 +1623,18 @@ input:checked + .slider:before {
 .order-modal-backdrop {
   position: fixed;
   inset: 0;
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   background-color: rgba(0,0,0,0.6);
   z-index: 4000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-normal);
 }
 .order-modal-backdrop.open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
 }
 .order-modal {
   width: min(90vw,22rem);
@@ -1750,6 +1754,25 @@ input:checked + .slider:before {
   z-index: 4000;
   transform: translateX(120%);
   transition: transform var(--transition-normal);
+}
+
+.copy-toast {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+  z-index: 4000;
+}
+.copy-toast.show {
+  opacity: 1;
 }
 
 .notification.show {
