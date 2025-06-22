@@ -1,6 +1,0 @@
-Flow Compliance v4
-- LINE コード入力欄を削除し決済確認を簡略化
-- verifyPaypayTransaction() で取引IDを検証し order_id を取得
-- confirmPurchase() で revalidateCart() を実行し不正値を拒否
-- API ステータスごとにエラー通知を確認
-- SSE 接続は従来通り動作
