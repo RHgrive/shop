@@ -1,100 +1,53 @@
-以下は プロ品質 でまとめた「Flow Compliance v3 – getLink.php 廃止 & PayPay 直リンク埋め込み」用 PROMPT.md です。
-これをリポジトリに置き、生成エンジン（GPT-4 / Codex など）にそのまま渡せば 1 〜 5 の修正が一括反映されます。
+# TASK PROMPT FOR AI AGENT (“RHgrive/shop”) – Flow Compliance v4
 
-# TASK PROMPT FOR AI AGENT (“RHgrive/shop”) – Flow Compliance v3
-**目的**: `getLink.php` を完全排除し、PayPay P2P 固定リンクを用いた決済手順に切替えると同時に、残っていた細部 5 点を仕上げる。
+目的: ホーム画面から LINE コード入力 UI を除去し、/api/paypaycheck 成功後にのみ /tsum/{order_id} へ遷移する正規フローを完成させる。同時に購入確定時の再バリデーションを追加して不正パラメータ送信を防止する。
 
 ---
-
 ## 0. 変更概要
-1. **PayPay 直リンク**  
-   * `generatePaymentLink()` を削除。  
-   * JS 冒頭に  
-     ```js
-     const FIXED_PAYPAY_URL = "https://qr.paypay.ne.jp/p2p01_diJqPHre1YDTtzKA";
-     ```  
-   * 「PayPayで支払う」ボタン (`paymentButton`) は **即 `window.open(FIXED_PAYPAY_URL)`**。
-2. **PHP エンドポイント完全廃止** (`getLink.php` の残骸削除)  
-3. **アクセストークン API パス統一**  
-   * `POST ${API_BASE}/line/getaccesstoken` に変更。  
-4. **エラー受信仕様の強化**  
-   * サーバーは必ず `{ error:"BadRequest" }` 形式で返す前提。  
-   * 未知値は `"Unknown"` としてハンドリング。  
-5. **UX & アクセシビリティ調整**  
-   * モーダルは **Esc** キーで閉じる。  
-   * `.order-copy` ボタンに `aria-label="注文IDをコピー"`。  
-   * `loginCode` 入力で Enter キーを押すと `loginBtn.click()`。  
+1. **index.html**
+   * `LINEコード` 入力フォーム全体を削除。
+   * 支払モーダル内: `PayPay取引ID` → `verifyPaypayTransaction()` 呼び出しに変更。
+2. **script.js**
+   * `verifyPaypayTransaction()` を追加。POST `${API_BASE}/paypaycheck` 成功時 `{order_id}` を受信しモーダルを更新。失敗時はステータス別エラー分岐。
+   * `confirmPurchase()` 冒頭で `revalidateCart()` を実行し、コイン <10000・プレラン >1100・score <1000000 等を検証。不合格なら API 不呼出。
+   * `paymentTransactionFields` と `confirmPurchaseButton` は `verifyPaypayTransaction()` 成功時のみ `style.display = "block"`。
+   * カートが空のとき `confirmPurchaseButton` 非活性。
+3. **style.css**
+   * 削除した LINE コード入力ブロック関連セレクタを除去。
+4. **tsum.js**
+   * 変更不要。LINE ログインコード UI はこのページのみ。
+5. **Debug.txt**
+   * Flow Compliance v4 の差分・テスト結果を新規記述。
 
 ---
-
 ## 1. 変更対象ファイル & 作業内容
 
-| File | 変更内容 |
-|------|---------|
-| **script.js** | - 先頭に `const FIXED_PAYPAY_URL = "https://qr.paypay.ne.jp/p2p01_diJqPHre1YDTtzKA"`<br>- `generatePaymentLink()` とその呼び出しを削除<br>- `paymentButton.onclick = () => { window.open(FIXED_PAYPAY_URL, "_blank") }`<br>- `fetch(API_BASE+"/getaccesstoken")` → `fetch(API_BASE+"/line/getaccesstoken")`<br>- `switch(res.data.error)` に `default:"Unknown"` ケース追加<br>- `document.addEventListener("keydown",e=>{if(e.key==="Escape"){const m=document.querySelector(".order-modal");if(m)m.remove()}})` |
-| **tsum.js** | `loginCode.addEventListener("keyup",e=>{if(e.key==="Enter")loginBtn.click()})` を追記 |
-| **index.html / tsum.html** | 「PayPayで支払う」ボタンの SVG / ラベルはそのまま、onclick 動作は JS 側で制御 |
-| **AGENTS.md** | Technical Policies: 「PayPayリンクは FIXED\_PAYPAY\_URL にハードコード」「PHP エンドポイント禁止」 |
-| **Debug.txt** | Flow Compliance v3 追記 |
+| File        | 変更内容 |
+|-------------|----------|
+| **index.html** | LINE コード入力フォーム削除。支払モーダルのボタン `onclick="verifyPaypayTransaction()"` に変更。|
+| **script.js** | 300 行目付近に `function verifyPaypayTransaction(){ … }` を追加し `fetch` 実装。<br>490 行目 `confirmPurchase()` に `revalidateCart()` 呼び出しを追加。<br>全体のコメントは厳禁、スペースは `a = b` 形式。|
+| **style.css** | `.line-code-field` など無効クラスを削除。|
+| **Debug.txt** | v4 の改善点・残課題を上書き。|
 
 ---
-
 ## 2. コーディング規約（再掲）
-* **コメント一切禁止**、`a = b` のクリーンスペース。  
-* 外部ライブラリ追加禁止。  
-* 既存変数・CSS カスタムプロパティ改名不可。  
-* 変更したファイルは **全文** を ` ```file:<name> ``` … ` ブロックで出力。  
-* 出力末尾に `### SELF-REVIEW`（得点・理由・改善案）。
+* コード内にコメントを一切書かない。
+* 外部ライブラリ追加禁止。
+* 修正ファイルは **全文** を ```file:``` ブロックで出力。
+* 出力末尾に `### SELF-REVIEW`（得点・理由・改善案）を必ず追記。
 
 ---
+## 3. 実装順チェックリスト
+1. index.html から LINE コード入力フォーム削除。
+2. script.js に `verifyPaypayTransaction()` / `revalidateCart()` 実装。
+3. style.css の不要セレクタ削除。
+4. npm run build → ESLint 0 error。
+5. 手動テスト：  
+   • 取引 ID 入力 → 200 → モーダルに order_id 表示 → 「代行画面へ」で /tsum/{order_id} 遷移。  
+   • API エラー各種でトースト表示。  
+   • コイン 9000 など不正値で confirmPurchase が拒否される。  
+   • /tsum/{order_id} で LINE コード入力 → タスク実行 → SSE 進捗確認。
 
-## 3. 参考パッチ（script.js 抜粋）
-
-```diff
-- function generatePaymentLink(amount){ ... }   // まるごと削除
-+ const FIXED_PAYPAY_URL = "https://qr.paypay.ne.jp/p2p01_diJqPHre1YDTtzKA";
-
-+ paymentButton.onclick = () => {
-+   window.open(FIXED_PAYPAY_URL, "_blank");
-+   showNotification("情報","PayPayの支払い画面が開きました。支払い完了後、取引IDを入力してください。");
-+ };
-
-- fetch(`${API_BASE}/getaccesstoken`,{ ... })
-+ fetch(`${API_BASE}/line/getaccesstoken`,{ ... })
-
-  switch(res.data.error){
-+   case "Unknown":
-+     message = "不明なエラーが発生しました。";
-+     break;
-  }
-
-+ document.addEventListener("keydown",e=>{
-+   if(e.key==="Escape"){
-+     const m=document.querySelector(".order-modal");
-+     if(m)m.remove();
-+   }
-+ })
-
-
-⸻
-
-4. 実装順チェックリスト
-	1.	script.js 編集 → fixed URL 導入 → generatePaymentLink 削除
-	2.	index.html の paymentButton は data-action 不要になったか確認
-	3.	tsum.js Enter キーバインド 追加
-	4.	npm run build / vite dev 等で Lint → ESLint エラー 0
-	5.	手動テスト：
-	•	「PayPayで支払う」 ⇒ 新タブで固定リンク
-	•	取引 ID 入力→ /paypaycheck 200 → モーダル → Esc 閉じ
-	•	/tsum/<id> で Enter によるログイン
-	•	すべての fetch URL が ngrok-free.app/api であることを DevTools Network で確認
-
-⸻
-
-SELF-REVIEW
-
+---
+### SELF-REVIEW
 <ここに得点・理由・改善案を必ず記入>
-
----
-
-この **PROMPT.md** を採用すれば、ご要望の 1 〜 5 を「壊さず」「短縮せず」「本番品質」で反映できます。
