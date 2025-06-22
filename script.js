@@ -978,17 +978,33 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
   }
 
   function addToCart(id, type, name, options, quantity, price, amount = null, contents = null) {
-    if (type === "set") {
-      if (setInCart) {
-        showNotification("エラー", "セット商品は1回の会計で1つまでしか購入できません。");
-        return false;
+    if (id !== "ツムレベ") {
+      if (id === "coin" && setInCart) {
+        showNotification("エラー", "セット商品と同時に購入できません。")
+        return false
       }
-      setInCart = id;
+      if (type === "set" && cart.some(i => i.id === "coin")) {
+        showNotification("エラー", "セット商品とコインは同時に購入できません。")
+        return false
+      }
+      if (type === "set" && cart.some(i => i.type === "set")) {
+        showNotification("エラー", "セット商品は1つまでです")
+        return false
+      }
+      if (type === "box") {
+        const t = options[0]?.value
+        if (boxTypesInCart.has(t)) {
+          showNotification("エラー", "同じタイプのBOXは選択できません")
+          return false
+        }
+        if (cart.some(i => i.type === "set" && Array.isArray(i.contents) && i.contents.some(c => c === "happiness-box" || c === "premium-box" || c === "select-box"))) {
+          showNotification("エラー", "セット内容と重複するBOXは追加できません")
+          return false
+        }
+      }
     }
-
-    if (type === "box" && options.length > 0) {
-      boxTypesInCart.add(options[0].value);
-    }
+    if (type === "set") setInCart = id
+    if (type === "box" && options.length > 0) boxTypesInCart.add(options[0].value)
 
     const cartItem = {
       id,
@@ -1560,17 +1576,18 @@ function buildPaypayPayload(payId) {
       if (!order_id) return
       localStorage.setItem("tsumshop_order_id", order_id)
       const id = order_id.toUpperCase()
-      const modal = document.createElement("div")
-      modal.className = "order-modal"
-      modal.innerHTML = `
-        <div class="order-id">${id}</div>
-        <button class="order-copy" aria-label="注文IDをコピー">コピー</button>
-        <div class="blink">スクリーンショットを保存してください</div>
-        <button class="order-open" aria-label="代行画面を開く">代行画面を開く</button>
-      `
-      document.body.appendChild(modal)
-      modal.querySelector(".order-copy").onclick = () => navigator.clipboard.writeText(id)
-      modal.querySelector(".order-open").onclick = () => { location.href = "/tsum/" + order_id }
+      const backdrop = document.getElementById("orderModal")
+      const idEl = document.getElementById("orderId")
+      idEl.textContent = id
+      backdrop.classList.add("open")
+      backdrop.setAttribute("aria-hidden","false")
+      const close=()=>{backdrop.classList.remove("open");backdrop.setAttribute("aria-hidden","true")}
+      backdrop.querySelector(".order-copy").onclick=()=>navigator.clipboard.writeText(id).catch(()=>prompt("コピーできませんでした。手動でコピーしてください",id))
+      backdrop.querySelector(".order-delete").onclick=close
+      backdrop.querySelector(".order-open").onclick=()=>{location.href="/tsum.html?id="+order_id}
+      backdrop.addEventListener("click",e=>{if(e.target===backdrop)close()},{once:true})
+      const esc=e=>{if(e.key==="Escape"){close();document.removeEventListener("keydown",esc)}}
+      document.addEventListener("keydown",esc)
     }
 
     confirmPurchaseButton.addEventListener("click", confirmPurchase);
@@ -1624,7 +1641,8 @@ function buildPaypayPayload(payId) {
         }
         showNotification(title, message);
         return false;
-      });
+      })
+      .catch(e=>{if(e.name==='TypeError')showNotification("通信エラー","ネットワーク/CORSに失敗しました");throw e});
     }
 
     function confirmPurchase() {

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Not Found</title>
+  <script>
+  const m = location.pathname.match(/^\/tsum\/([A-Z0-9]{6})/)
+  if(m) location.replace('/tsum.html?id='+m[1])
+  else location.replace('/')
+  </script>
+</head>
+<body></body>
+</html>
