@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentTsumSelection = null;
   let currentSetStep = 1;
   let totalSetSteps = 0;
-  let lineCodeVerified = false;
   initializeTheme();
   loadTsumList();
   loadProducts();
@@ -1389,14 +1388,9 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
     return;
   }
 
-  lineCodeVerified = false;
-
   document.getElementById("paypayId").value = "";
-  document.getElementById("lineToken").value = "";
   document.getElementById("paypayValidation").textContent = "";
   document.getElementById("paypayValidation").className = "transaction-validation";
-  document.getElementById("lineValidation").textContent = "";
-  document.getElementById("lineValidation").className = "transaction-validation";
 
   paymentTransactionFields.style.display = "none";
   confirmPurchaseButton.style.display = "none";
@@ -1448,17 +1442,14 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
   e.stopPropagation();
   termsToggle.classList.toggle("checked");
   confirmPurchaseButton.disabled = !termsToggle.classList.contains("checked")
-    || !/^[A-Z0-9]{20}$/.test(paypayId.value.trim())
-    || !lineCodeVerified;
+    || !/^[A-Z0-9]{20}$/.test(paypayId.value.trim());
 });
   
 
     const successOverlay = document.getElementById("successOverlay");
     const successCloseButton = document.getElementById("successCloseButton");
     const paypayId = document.getElementById("paypayId");
-    const lineToken = document.getElementById("lineToken");
     const paypayValidation = document.getElementById("paypayValidation");
-    const lineValidation = document.getElementById("lineValidation");
 
     function validateTransaction(inputEl, validPattern, validationEl, successMsg) {
       const v = inputEl.value.trim();
@@ -1486,55 +1477,13 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
         "有効なPayPay取引IDです"
       );
 
-      document.getElementById("lineTokenGroup").style.display = isValid ? "block" : "none";
-      updatePurchaseButtonState();
+      confirmPurchaseButton.disabled = !termsToggle.classList.contains("checked") || !isValid;
     });
-    
-    lineToken.addEventListener("input", () => {
-      const isValid = validateTransaction(
-        lineToken, 
-        /^[A-Z0-9]{5}$/, 
-        lineValidation, 
-        "有効なLineトークンです"
-      );
-      
-      if (isValid) {
-        lineCodeVerified = true;
-        
-        fetch(`${API_BASE}/line/getaccesstoken`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ code: lineToken})
-        })
-        .then(response => {
-          return response.json();
-        })
-        .then(data => {
-          alert(data.access_token);
-        })
-        .catch(error => {
-          showNotification("エラー", "トークン無効");
-        });
-        
-      } else {
-        lineCodeVerified = false;
-      }
-      
-      updatePurchaseButtonState();
-    });
-
-    function updatePurchaseButtonState() {
-      const termsAccepted = termsToggle.classList.contains("checked");
-      confirmPurchaseButton.disabled = !termsAccepted || !/^[A-Z0-9]{20}$/.test(paypayId.value.trim()) || !lineCodeVerified;
-    }
 
     const paymentButton = document.getElementById("paymentButton");
     paymentButton.onclick = () => {
       paymentTransactionFields.style.display = "block"
       confirmPurchaseButton.style.display = "inline-flex"
-      document.getElementById("lineTokenGroup").style.display = "none"
       window.open(FIXED_PAYPAY_URL, "_blank");
       showNotification("情報","PayPayの支払い画面が開きました。支払い完了後、取引IDを入力してください。");
     };
@@ -1624,27 +1573,72 @@ function buildPaypayPayload(payId) {
       modal.querySelector(".order-open").onclick = () => { location.href = "/tsum/" + order_id }
     }
 
-    confirmPurchaseButton.addEventListener("click", function () {
-      const pay = paypayId.value.trim();
-      const line = lineToken.value.trim();
+    confirmPurchaseButton.addEventListener("click", confirmPurchase);
 
+    function revalidateCart() {
+      const items = buildLastData(cart);
+      if (items.some(i => i.id === "coin" && i.amount < 10000)) return false;
+      if (items.some(i => i.id === "プレラン" && i.amount > 1100)) return false;
+      if (items.some(i => i.id === "score" && i.amount < 1000000)) return false;
+      return true;
+    }
+
+    function verifyPaypayTransaction(pay) {
+      const payload = buildPaypayPayload(pay);
+      return fetch(`${API_BASE}/paypaycheck`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(r => r.json().then(d => ({ status: r.status, data: d })))
+      .then(res => {
+        if (res.status === 200) {
+          handlePaymentSuccess(res.data);
+          return true;
+        }
+        let title = "エラー";
+        let message = "";
+        switch (res.data.error) {
+          case "DBError":
+            title = "システムエラー";
+            message = "内部エラーが発生しました。時間をおいて再試行してください。";
+            break;
+          case "NotFoundHistory":
+            title = "取引履歴なし";
+            message = "PayPay 側に履歴が見つかりません。";
+            break;
+          case "InsufficientAmount":
+            title = "残高不足";
+            message = "残高が不足しています。";
+            break;
+          case "usedID":
+            title = "重複取引番号";
+            message = "この取引番号は既に登録済みです。";
+            break;
+          case "BadRequest":
+            title = "入力不足";
+            message = "必須パラメータが不足しています。";
+            break;
+          default:
+            message = "購入処理中にエラーが発生しました。";
+        }
+        showNotification(title, message);
+        return false;
+      });
+    }
+
+    function confirmPurchase() {
+      const pay = paypayId.value.trim();
       if (!pay) {
         showNotification("エラー", "PayPay取引IDを入力してください。");
         return;
       }
-      
-      if (!line) {
-        showNotification("エラー", "LINEトークンを入力してください。");
+      if (!revalidateCart()) {
+        showNotification("エラー", "カート内容が不正です。");
         return;
       }
-
-      if (!lineCodeVerified) {
-        showNotification("エラー", "LINEトークンが無効です。");
-        return;
-      }
-
-      this.disabled = true;
-      this.innerHTML = `
+      confirmPurchaseButton.disabled = true;
+      confirmPurchaseButton.innerHTML = `
         <svg class="pulsing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 12a9 9 0 0 1-9 9"></path>
           <path d="M3 12a9 9 0 0 1 9-9"></path>
@@ -1653,114 +1647,58 @@ function buildPaypayPayload(payId) {
         </svg>
         処理中...
       `;
+      verifyPaypayTransaction(pay)
+      .then(ok => {
+        if (!ok) throw new Error();
 
-      const payload = buildPaypayPayload(pay)
-      payload.lineToken = line
+        checkoutOverlay.classList.remove("open");
+        checkoutOverlay.setAttribute("aria-hidden", "true");
+        successOverlay.classList.add("open");
+        successOverlay.setAttribute("aria-hidden", "false");
 
-      fetch(`${API_BASE}/paypaycheck`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(r => r.json().then(d => ({ status: r.status, data: d })))
-      .then(res => {
-        if (res.status === 200) {
-          handlePaymentSuccess(res.data)
-        } else {
-          let title = "エラー"
-          let message = ""
-          switch (res.data.error) {
-            case "DBError":
-              title = "システムエラー"
-              message = "内部エラーが発生しました。時間をおいて再試行してください。"
-              break
-            case "NotFoundHistory":
-              title = "取引履歴なし"
-              message = "PayPay 側に履歴が見つかりません。"
-              break
-            case "InsufficientAmount":
-              title = "残高不足"
-              message = "残高が不足しています。"
-              break
-            case "usedID":
-              title = "重複取引番号"
-              message = "この取引番号は既に登録済みです。"
-              break
-            case "BadRequest":
-              title = "入力不足"
-              message = "必須パラメータが不足しています。"
-              break
-            case "Unknown":
-              message = "不明なエラーが発生しました。"
-              break
-            default:
-              message = "購入処理中にエラーが発生しました。"
-          }
-          showNotification(title, message)
-          throw new Error()
-        }
-      })
-      .then(() => {
-        checkoutOverlay.classList.remove("open")
-        checkoutOverlay.setAttribute("aria-hidden", "true")
-        successOverlay.classList.add("open")
-        successOverlay.setAttribute("aria-hidden", "false")
+        const purchases = JSON.parse(localStorage.getItem("tsumTsumPurchases") || "[]");
+        purchases.push(buildPaypayPayload(pay));
+        localStorage.setItem("tsumTsumPurchases", JSON.stringify(purchases));
+        purchaseHistory = purchases;
 
-        const purchases = JSON.parse(localStorage.getItem("tsumTsumPurchases") || "[]")
-        purchases.push(payload)
-        localStorage.setItem("tsumTsumPurchases", JSON.stringify(purchases))
-        purchaseHistory = purchases
+        updateStats();
+        cart = [];
+        setInCart = null;
+        boxTypesInCart.clear();
+        updateCartDisplay();
+        saveCartToStorage();
 
-        updateStats()
-        cart = []
-        setInCart = null
-        boxTypesInCart.clear()
-        updateCartDisplay()
-        saveCartToStorage()
+        paypayId.value = "";
+        paypayValidation.textContent = "";
+        paypayValidation.className = "transaction-validation";
 
-        this.disabled = false
-        this.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
-          購入を確定
-        `;
-
-        paypayId.value = ""
-        lineToken.value = ""
-        paypayValidation.textContent = ""
-        paypayValidation.className = "transaction-validation"
-        lineValidation.textContent = ""
-        lineValidation.className = "transaction-validation"
-
-      document.querySelectorAll('.add-to-cart.in-cart').forEach(button => {
-        button.classList.remove('in-cart')
-        button.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-          カートに追加
-        `;
-      })
+        document.querySelectorAll('.add-to-cart.in-cart').forEach(button => {
+          button.classList.remove('in-cart');
+          button.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            カートに追加
+          `;
+        });
       })
       .catch(error => {
-        console.error("API error:", error)
-        showNotification("エラー", "購入処理中にエラーが発生しました。")
-        this.disabled = false
-        this.innerHTML = `
+        console.error("API error:", error);
+        showNotification("エラー", "購入処理中にエラーが発生しました。");
+      })
+      .finally(() => {
+        confirmPurchaseButton.disabled = false;
+        confirmPurchaseButton.innerHTML = `
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
           購入を確定
         `;
-      })
-    });
+      });
+    }
 
     successCloseButton.addEventListener("click", () => {
       successOverlay.classList.remove("open");
