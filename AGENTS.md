@@ -53,6 +53,8 @@ Debug.txt         – デバッグメモ（毎回再生成可）
 * `localStorage` の `tsumshop_order_id` に注文 ID を保存。
 * Accessibility は `label`/`for`、`role="button"`、`aria-live` を徹底。
 * Dark/Light theme は `prefers-color-scheme` と設定トグルを組み合わせる。
+* PayPayリンクは FIXED_PAYPAY_URL にハードコード
+* PHP エンドポイント禁止
 
 ## 6. Output Rules
 * Provide entire file contents when modified or new.  

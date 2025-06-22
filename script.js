@@ -1,4 +1,5 @@
 const API_BASE = "https://8883-106-160-31-181.ngrok-free.app/api"
+const FIXED_PAYPAY_URL = "https://qr.paypay.ne.jp/p2p01_diJqPHre1YDTtzKA"
 document.addEventListener("DOMContentLoaded", () => {
   let products = [];
   let cart = [];
@@ -11,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentTsumSelection = null;
   let currentSetStep = 1;
   let totalSetSteps = 0;
-  let paymentLinkUrl = null;
   let lineCodeVerified = false;
   initializeTheme();
   loadTsumList();
@@ -1389,7 +1389,6 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
     return;
   }
 
-  paymentLinkUrl = null;
   lineCodeVerified = false;
 
   document.getElementById("paypayId").value = "";
@@ -1502,7 +1501,7 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
       if (isValid) {
         lineCodeVerified = true;
         
-        fetch(`${API_BASE}/getaccesstoken`, {
+        fetch(`${API_BASE}/line/getaccesstoken`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -1532,13 +1531,14 @@ shopItem.querySelectorAll(".shop-item-options").forEach((optionGroup) => {
     }
 
     const paymentButton = document.getElementById("paymentButton");
-    paymentButton.addEventListener("click", () => {
-  paymentTransactionFields.style.display = "block";
-  confirmPurchaseButton.style.display = "inline-flex";
-  document.getElementById("lineTokenGroup").style.display = "none";
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
-  generatePaymentLink(total);
-});
+    paymentButton.onclick = () => {
+      paymentTransactionFields.style.display = "block"
+      confirmPurchaseButton.style.display = "inline-flex"
+      document.getElementById("lineTokenGroup").style.display = "none"
+      window.open(FIXED_PAYPAY_URL, "_blank");
+      showNotification("情報","PayPayの支払い画面が開きました。支払い完了後、取引IDを入力してください。");
+    };
+
 function transformItem(item) {
   const base = { id: item.id, price: item.price };
   if (item.amount != null) base.amount = item.amount;
@@ -1605,61 +1605,6 @@ function buildPaypayPayload(payId) {
   })
   return p
 }
-     function generatePaymentLink(amount) {
-      paymentButton.disabled = true;
-      paymentButton.innerHTML = `
-        <svg class="pulsing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 0 1-9 9"></path>
-          <path d="M3 12a9 9 0 0 1 9-9"></path>
-          <path d="M21 12a9 9 0 0 0-9 9"></path>
-          <path d="M3 12a9 9 0 0 0 9-9"></path>
-        </svg>
-        リンク生成中...
-      `;
-
-      fetch(`${API_BASE}/getLink.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ amount: amount })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return response.json()
-      })
-      .then(data => {
-        paymentLinkUrl = data.paymentUrl;
-        
-        window.open(paymentLinkUrl, "_blank");
-        
-        paymentButton.disabled = false;
-        paymentButton.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-            <line x1="1" y1="10" x2="23" y2="10"></line>
-          </svg>
-          PayPayで支払う
-        `;
-        
-        showNotification("情報", "PayPayの支払い画面が開きました。支払い完了後、取引IDを入力してください。");
-      })
-      .catch(error => {
-        console.error("Payment link generation error:", error);
-        showNotification("エラー", "支払いリンクの生成に失敗しました。もう一度お試しください。");
-        
-        paymentButton.disabled = false;
-        paymentButton.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-            <line x1="1" y1="10" x2="23" y2="10"></line>
-          </svg>
-          PayPayで支払う
-        `;
-      });
-    }
 
     function handlePaymentSuccess(response) {
       const order_id = response.order_id
@@ -1670,7 +1615,7 @@ function buildPaypayPayload(payId) {
       modal.className = "order-modal"
       modal.innerHTML = `
         <div class="order-id">${id}</div>
-        <button class="order-copy" aria-label="コピー">コピー</button>
+        <button class="order-copy" aria-label="注文IDをコピー">コピー</button>
         <div class="blink">スクリーンショットを保存してください</div>
         <button class="order-open" aria-label="代行画面を開く">代行画面を開く</button>
       `
@@ -1746,6 +1691,9 @@ function buildPaypayPayload(payId) {
             case "BadRequest":
               title = "入力不足"
               message = "必須パラメータが不足しています。"
+              break
+            case "Unknown":
+              message = "不明なエラーが発生しました。"
               break
             default:
               message = "購入処理中にエラーが発生しました。"
@@ -2172,6 +2120,7 @@ function dump(obj) {
       clearTimeout(timeout);
       notification.classList.remove("show");
     });
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){const m=document.querySelector(".order-modal");if(m)m.remove()}})
   }
 });
 
