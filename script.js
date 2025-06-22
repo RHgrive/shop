@@ -1608,7 +1608,7 @@ function buildPaypayPayload(payId) {
 
     function verifyPaypayTransaction(pay) {
       const payload = buildPaypayPayload(pay);
-      return fetch(`https://rhgrive.stars.ne.jp/test/api/check.php`, { //今はテストなのでphp使ってる。本番は　${API_BASE}/paypaycheck これです
+      return fetch(`https://rhgrive.stars.ne.jp/test/api/check.php`, { //今はテストなのでphp使ってる。本番は　${API_BASE}/paypaycheck
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
